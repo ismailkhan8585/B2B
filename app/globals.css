@@ -1,19 +1,17 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+@import "../src/styles/tokens.css";
 
 :root {
   color-scheme: light;
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --ring: 222.2 84% 4.9%;
+  --background: var(--surface);
+  --card: #ffffff;
+  --border: rgba(15, 19, 32, 0.10);
+  --input: rgba(15, 19, 32, 0.12);
+
+  --primary-foreground: #ffffff;
+  --muted-foreground: var(--muted);
+  --ring: var(--accent);
 }
 
 html,
@@ -22,16 +20,26 @@ body {
 }
 
 @theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-ring: hsl(var(--ring));
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: rgba(15, 19, 32, 0.06);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-ring: var(--ring);
+}
+
+* {
+  accent-color: var(--accent);
+}
+
+body {
+  font-size: var(--font-body);
+  color: var(--foreground);
+  background: var(--surface);
 }
 

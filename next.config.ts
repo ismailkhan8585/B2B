@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: __dirname,
+  turbo: {
+    resolveExtensions: [".tsx", ".ts", ".jsx", ".js"],
+  },
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL,
   },
 };
 

@@ -1,0 +1,29 @@
+:root {
+  --primary:     #1F2A44;
+  --accent:      #16B8C7;
+  --success:     #1F9D55;
+  --warning:     #E0A23A;
+  --destructive: #D43A2F;
+  --surface:     #F8F9FB;
+  --foreground:  #0F1320;
+  --muted:       #6B7280;
+
+  /* Spacing scale — 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Typography */
+  --font-display: 40px;
+  --font-h1: 30px;
+  --font-h2: 22px;
+  --font-h3: 16px;
+  --font-body: 14px;
+  --font-caption: 12px;
+}
+

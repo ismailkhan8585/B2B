@@ -34,19 +34,23 @@ export default auth((req) => {
 
   const role = session.user.role ?? "BUYER";
 
+  const unauthorizedUrl = new URL("/unauthorized", nextUrl);
+  unauthorizedUrl.searchParams.set("attempted", pathname);
+  unauthorizedUrl.searchParams.set("suggested", dashboardForRole(role));
+
   if (isAdmin) {
     if (role === "ADMIN" || role === "SUPER_ADMIN") return NextResponse.next();
-    return NextResponse.redirect(new URL(dashboardForRole(role), nextUrl));
+    return NextResponse.redirect(unauthorizedUrl);
   }
 
   if (isSeller) {
     if (role === "SELLER") return NextResponse.next();
-    return NextResponse.redirect(new URL(dashboardForRole(role), nextUrl));
+    return NextResponse.redirect(unauthorizedUrl);
   }
 
   if (isBuyer) {
     if (role === "BUYER") return NextResponse.next();
-    return NextResponse.redirect(new URL(dashboardForRole(role), nextUrl));
+    return NextResponse.redirect(unauthorizedUrl);
   }
 
   return NextResponse.next();

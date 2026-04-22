@@ -134,3 +134,54 @@ export const getCompanyBySlug = cache(async (slug: string) => {
   });
 });
 
+const SuppliersFiltersSchema = z.object({
+  q: z.string().optional(),
+  country: z.string().optional(),
+  verification: z.enum(["VERIFIED", "PENDING", "UNVERIFIED", "REJECTED"]).optional(),
+  businessType: z.string().optional(),
+  page: z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(50).default(24),
+});
+
+export const getSuppliers = cache(async (filters: unknown) => {
+  const f = SuppliersFiltersSchema.parse(filters);
+  const where: any = { isActive: true };
+  if (f.q) {
+    where.OR = [
+      { name: { contains: f.q, mode: "insensitive" } },
+      { slug: { contains: f.q, mode: "insensitive" } },
+      { country: { contains: f.q, mode: "insensitive" } },
+    ];
+  }
+  if (f.country) where.country = { contains: f.country, mode: "insensitive" };
+  if (f.verification) where.verificationStatus = f.verification;
+  if (f.businessType) where.businessType = { contains: f.businessType, mode: "insensitive" };
+
+  const [items, total] = await Promise.all([
+    prisma.company.findMany({
+      where,
+      orderBy: [{ verificationStatus: "desc" }, { createdAt: "desc" }],
+      skip: (f.page - 1) * f.pageSize,
+      take: f.pageSize,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        country: true,
+        logoUrl: true,
+        verificationStatus: true,
+        products: { where: { status: "ACTIVE" }, select: { id: true } },
+      },
+    }),
+    prisma.company.count({ where }),
+  ]);
+
+  return {
+    items: items.map((c) => ({ ...c, productCount: c.products.length })),
+    total,
+    page: f.page,
+    pageSize: f.pageSize,
+    pageCount: Math.ceil(total / f.pageSize),
+  };
+});
+

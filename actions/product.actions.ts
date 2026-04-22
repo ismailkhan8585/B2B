@@ -175,8 +175,15 @@ export async function deleteProduct(id: string) {
 const GetProductsFiltersSchema = z.object({
   q: z.string().optional(),
   categorySlug: z.string().optional(),
+  featured: z.boolean().optional(),
+  priceMin: z.number().optional(),
+  priceMax: z.number().optional(),
+  verifiedOnly: z.boolean().optional(),
+  businessTypes: z.array(z.string()).optional(),
+  shipsFrom: z.array(z.string()).optional(),
+  sort: z.enum(["best", "price_asc", "price_desc", "top", "new"]).default("best"),
   page: z.number().int().min(1).default(1),
-  pageSize: z.number().int().min(1).max(50).default(12),
+  pageSize: z.number().int().min(1).max(50).default(24),
 });
 
 export const getProducts = cache(async (filters: unknown) => {
@@ -195,10 +202,41 @@ export const getProducts = cache(async (filters: unknown) => {
     where.category = { slug: f.categorySlug };
   }
 
+  if (f.featured) where.isFeatured = true;
+
+  if (typeof f.priceMin === "number" || typeof f.priceMax === "number") {
+    where.AND = where.AND ?? [];
+    if (typeof f.priceMin === "number") where.AND.push({ priceMax: { gte: f.priceMin } });
+    if (typeof f.priceMax === "number") where.AND.push({ priceMin: { lte: f.priceMax } });
+  }
+
+  if (f.verifiedOnly) {
+    where.company = { ...(where.company ?? {}), verificationStatus: "VERIFIED" };
+  }
+
+  if (f.businessTypes?.length) {
+    where.company = { ...(where.company ?? {}), businessType: { in: f.businessTypes } };
+  }
+
+  if (f.shipsFrom?.length) {
+    where.company = { ...(where.company ?? {}), country: { in: f.shipsFrom } };
+  }
+
+  const orderBy =
+    f.sort === "price_asc"
+      ? [{ priceMin: "asc" as const }, { createdAt: "desc" as const }]
+      : f.sort === "price_desc"
+        ? [{ priceMin: "desc" as const }, { createdAt: "desc" as const }]
+        : f.sort === "top"
+          ? [{ viewCount: "desc" as const }, { createdAt: "desc" as const }]
+          : f.sort === "new"
+            ? [{ createdAt: "desc" as const }]
+            : [{ viewCount: "desc" as const }, { createdAt: "desc" as const }];
+
   const [items, total] = await Promise.all([
     prisma.product.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy,
       skip: (f.page - 1) * f.pageSize,
       take: f.pageSize,
       select: {
@@ -209,7 +247,10 @@ export const getProducts = cache(async (filters: unknown) => {
         currency: true,
         priceMin: true,
         priceMax: true,
-        company: { select: { id: true, name: true, slug: true, verificationStatus: true, logoUrl: true } },
+        minOrderQty: true,
+        minOrderUnit: true,
+        viewCount: true,
+        company: { select: { id: true, name: true, slug: true, verificationStatus: true, logoUrl: true, country: true, businessType: true } },
         images: { where: { isPrimary: true }, take: 1, select: { url: true } },
         createdAt: true,
       },
