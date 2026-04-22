@@ -1,11 +1,11 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Email from "next-auth/providers/email";
+import Resend from "next-auth/providers/resend";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
-import { resend, emailFrom } from "@/lib/email";
+import { emailFrom } from "@/lib/email";
 
 type AppRole = "BUYER" | "SELLER" | "ADMIN" | "SUPER_ADMIN";
 type AppUserStatus = "ACTIVE" | "SUSPENDED" | "PENDING_VERIFICATION" | "BANNED";
@@ -22,8 +22,9 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
     verifyRequest: "/verify",
     newUser: "/register",
   },
-  providers: [
-    Credentials({
+  providers: (() => {
+    const providers = [
+      Credentials({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -53,31 +54,20 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
 
         return { id: user.id, email: user.email, name: user.name, role: user.role, status: user.status } as any;
       },
-    }),
-    Email({
-      from: emailFrom,
-      async sendVerificationRequest({ identifier, url }) {
-        if (!process.env.RESEND_API_KEY) {
-          throw new Error("RESEND_API_KEY missing");
-        }
+      }),
+    ] as any[];
 
-        const { error } = await resend.emails.send({
+    if (process.env.RESEND_API_KEY) {
+      providers.push(
+        Resend({
+          apiKey: process.env.RESEND_API_KEY,
           from: emailFrom,
-          to: identifier,
-          subject: "Sign in to B2B Marketplace",
-          html: `
-            <div style="font-family: ui-sans-serif, system-ui; line-height: 1.6;">
-              <p>Your sign-in link:</p>
-              <p><a href="${url}">${url}</a></p>
-              <p>If you didn't request this, you can ignore this email.</p>
-            </div>
-          `,
-        });
+        }),
+      );
+    }
 
-        if (error) throw error;
-      },
-    }),
-  ],
+    return providers;
+  })(),
   callbacks: {
     async jwt({ token, user }) {
       // On initial sign in, merge in role/status from `user` (Credentials)

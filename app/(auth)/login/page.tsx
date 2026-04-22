@@ -72,7 +72,7 @@ export default function LoginPage() {
               onClick={() => {
                 setError(null);
                 startTransition(async () => {
-                  await signIn("email", { email, callbackUrl: from || "/" });
+                      await signIn("resend", { email, callbackUrl: from || "/" });
                 });
               }}
             >

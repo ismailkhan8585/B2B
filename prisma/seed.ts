@@ -1,11 +1,15 @@
+import 'dotenv/config';
 import { PrismaClient, Role, UserStatus, CompanyVerificationStatus, ProductStatus } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
+import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
 
-const DATABASE_URL = 'postgresql://neondb_owner:npg_crW6E8MaRQPk@ep-green-sea-anuex1fn-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_2eygO9YwfNHd@ep-gentle-sea-ammyigrp-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
 
-const pool = new pg.Pool({ connectionString: DATABASE_URL });
+console.log('Using DATABASE_URL:', DATABASE_URL);
+
+// Use PrismaPg adapter
+const pool = new Pool({ connectionString: DATABASE_URL });
+const { PrismaPg } = require('@prisma/adapter-pg');
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
