@@ -85,30 +85,97 @@ export async function updateProduct(id: string, input: unknown) {
 }
 
 export async function publishProduct(id: string) {
+  console.log("Starting publishProduct for id:", id);
   try {
-    const session = await auth();
-    if (!session?.user?.id) return { success: false as const, error: "Unauthorized" };
-    if (session.user.role !== "SELLER") return { success: false as const, error: "Only sellers can publish products." };
-    if (!session.user.companyId) return { success: false as const, error: "Missing company profile." };
+    // Validate product ID
+    const parsedId = z.string().cuid().parse(id);
+    console.log("Parsed ID:", parsedId);
 
+    const session = await auth();
+    console.log("Session:", session ? "exists" : "null");
+    if (!session?.user?.id) {
+      console.log("No session user");
+      return { success: false as const, error: "Unauthorized" };
+    }
+    if (session.user.role !== "SELLER") {
+      console.log("User is not seller:", session.user.role);
+      return { success: false as const, error: "Only sellers can publish products." };
+    }
+    if (!session.user.companyId) {
+      console.log("No company ID");
+      return { success: false as const, error: "Missing company profile." };
+    }
+
+    // Check if product exists and belongs to the seller
+    console.log("Checking product existence");
+    const productCheck = await prisma.product.findUnique({
+      where: { id: parsedId },
+      select: { id: true, companyId: true, status: true },
+    });
+    console.log("Product check result:", productCheck);
+    if (!productCheck) {
+      console.log("Product not found");
+      return { success: false as const, error: "Product not found." };
+    }
+    if (productCheck.companyId !== session.user.companyId) {
+      console.log("Product doesn't belong to user");
+      return { success: false as const, error: "Forbidden" };
+    }
+
+    console.log("Checking company verification");
     const company = await prisma.company.findUnique({
       where: { id: session.user.companyId },
       select: { verificationStatus: true },
     });
-    if (!company) return { success: false as const, error: "Company not found." };
-    if (company.verificationStatus !== "VERIFIED") return { success: false as const, error: "Company must be verified to publish." };
+    console.log("Company result:", company);
+    if (!company) {
+      console.log("Company not found");
+      return { success: false as const, error: "Company not found." };
+    }
+    if (company.verificationStatus !== "VERIFIED") {
+      console.log("Company not verified:", company.verificationStatus);
+      return { success: false as const, error: "Company must be verified to publish." };
+    }
 
+    console.log("Updating product status");
     const product = await prisma.product.update({
-      where: { id },
+      where: { id: parsedId },
       data: { status: "ACTIVE" },
       select: { id: true, status: true, slug: true },
     });
+    console.log("Product update result:", product);
 
-    revalidatePath("/seller/dashboard");
-    revalidatePath("/products");
+    // Note: revalidatePath might cause issues in some Next.js versions
+    try {
+      console.log("Revalidating paths");
+      revalidatePath("/seller/dashboard");
+      revalidatePath("/products");
+    } catch (revalidateError) {
+      console.warn("Revalidation failed:", revalidateError);
+    }
+
+    console.log("Publish successful");
     return { success: true as const, data: product };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Publish failed";
+    console.error("Publish product error:", err);
+    console.error("Error type:", typeof err);
+    console.error("Error keys:", err ? Object.keys(err) : "err is null/undefined");
+
+    // More robust error message extraction
+    let message = "Publish failed";
+    if (err) {
+      if (typeof err === 'string') {
+        message = err;
+      } else if (typeof err === 'object') {
+        if ('message' in err && typeof (err as any).message === 'string') {
+          message = (err as any).message;
+        } else if ('toString' in err) {
+          message = String(err);
+        }
+      }
+    }
+
+    console.log("Final error message:", message);
     return { success: false as const, error: message };
   }
 }

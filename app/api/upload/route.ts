@@ -4,6 +4,8 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
+export const runtime = "nodejs";
+
 const UploadTypeSchema = z.enum([
   "avatar",
   "company-logo",

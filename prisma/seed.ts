@@ -3,7 +3,7 @@ import { PrismaClient, Role, UserStatus, CompanyVerificationStatus, ProductStatu
 import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_2eygO9YwfNHd@ep-gentle-sea-ammyigrp-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_2eygO9YwfNHd@ep-gentle-sea-ammyigrp-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=verify-full&channel_binding=require';
 
 console.log('Using DATABASE_URL:', DATABASE_URL);
 

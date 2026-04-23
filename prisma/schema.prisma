@@ -65,6 +65,28 @@ enum SubscriptionPlan {
   ENTERPRISE
 }
 
+enum DisputeType {
+  DAMAGED_SHIPMENT
+  QUALITY_MISMATCH
+  LATE_DELIVERY
+  WRONG_SPECS
+  REFUND
+  OTHER
+}
+
+enum DisputePriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  CLOSED
+}
+
 // ─── CORE MODELS ─────────────────────────────────────────
 
 model User {
@@ -92,6 +114,9 @@ model User {
   receivedReviews Review[]                    @relation("ReviewTarget")
   notifications   Notification[]
   auditLogs       AuditLog[]                  @relation("AuditActor")
+  raisedDisputes  Dispute[]                   @relation("DisputeRaiser")
+  againstDisputes Dispute[]                   @relation("DisputeAgainst")
+  adminPermissions AdminPermission?
 
   @@index([email])
   @@index([role])
@@ -403,5 +428,60 @@ model AuditLog {
   @@index([actorId])
   @@index([action])
   @@index([createdAt])
+}
+
+// ─── DISPUTES ──────────────────────────────────────────────
+
+model Dispute {
+  id          String          @id @default(cuid())
+  raisedById  String
+  againstId   String
+  orderId     String?
+  type        DisputeType     @default(OTHER)
+  description String
+  amount      Decimal?
+  priority    DisputePriority @default(MEDIUM)
+  status      DisputeStatus   @default(OPEN)
+  resolution  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  raisedBy User @relation("DisputeRaiser", fields: [raisedById], references: [id])
+  against  User @relation("DisputeAgainst", fields: [againstId], references: [id])
+
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+// ─── PLATFORM SETTINGS ─────────────────────────────────────
+
+model PlatformSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+  updatedBy String
+
+  @@index([key])
+}
+
+// ─── ADMIN PERMISSIONS ─────────────────────────────────────
+
+model AdminPermission {
+  id       String @id @default(cuid())
+  adminId  String @unique
+  canViewFinance Boolean @default(false)
+  canEditSettings Boolean @default(false)
+  canManageUsers Boolean @default(true)
+  canManageCompanies Boolean @default(true)
+  canManageProducts Boolean @default(true)
+  canManageRFQs Boolean @default(true)
+  canHandleVerifications Boolean @default(true)
+  canHandleDisputes Boolean @default(true)
+  updatedAt DateTime @updatedAt
+
+  admin User @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
 

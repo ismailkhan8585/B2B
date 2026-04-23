@@ -65,10 +65,21 @@ export function SellerProductEditor({
             disabled={isPending}
             onClick={() => {
               startTransition(async () => {
-                const res = await publishProduct(product.id);
-                if (!res.success) toast.error(res.error ?? "Publish failed.");
-                else toast.success("Published.");
-                router.refresh();
+                try {
+                  const res = await publishProduct(product.id);
+                  console.log("Publish result:", res);
+                  if (!res.success) {
+                    const errorMessage = res.error || "Publish failed.";
+                    console.log("Showing error:", errorMessage);
+                    toast.error(errorMessage);
+                  } else {
+                    toast.success("Published.");
+                    router.refresh();
+                  }
+                } catch (err) {
+                  console.error("Publish error:", err);
+                  toast.error("An unexpected error occurred.");
+                }
               });
             }}
             style={{ background: "var(--accent)" }}
