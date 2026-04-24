@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/shared/Badge";
 import { ProductCard } from "@/components/shared/ProductCard";
+import { StartChatButton } from "@/components/shared/StartChatButton";
 import { Button } from "@/components/ui/button";
 
 export default async function SupplierProfilePage({
@@ -218,9 +219,7 @@ export default async function SupplierProfilePage({
             </div>
             <p className="mt-1 text-sm text-muted-foreground">Start a conversation from your buyer dashboard.</p>
             <div className="mt-4">
-              <Button asChild className="w-full" style={{ background: "var(--accent)" }}>
-                <Link href="/buyer/dashboard/messages">Message Supplier</Link>
-              </Button>
+              <StartChatButton companyId={company.id} />
             </div>
           </div>
         </aside>

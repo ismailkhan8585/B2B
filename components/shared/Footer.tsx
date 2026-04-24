@@ -27,109 +27,163 @@ function IconYouTube(props: React.SVGProps<SVGSVGElement>) {
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-white">
-      <div className="mx-auto grid max-w-[1280px] gap-8 px-4 py-10 md:grid-cols-5">
-        <div className="md:col-span-2">
-          <div className="text-sm font-semibold" style={{ color: "var(--primary)" }}>
-            TradeHub
+    <footer className="border-t border-border bg-primary">
+      <div className="mx-auto grid max-w-[1280px] gap-8 px-4 py-12 md:grid-cols-4">
+        {/* Column 1 - Brand */}
+        <div className="text-white">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="grid h-8 w-8 place-items-center rounded-md bg-white/20 text-white font-bold">
+              B2
+            </span>
+            <span className="text-xl font-semibold tracking-tight">
+              TradeHub
+            </span>
           </div>
-          <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-            Bulk sourcing marketplace for verified suppliers, RFQs, and secure trade workflows.
+          <p className="mb-4 text-white/80">
+            Global B2B Marketplace
           </p>
-
-          <div className="mt-4 flex items-center gap-3">
-            <Link aria-label="Twitter" href="#" className="text-muted-foreground hover:text-foreground">
+          <p className="mb-6 text-sm text-white/60">
+            Connecting verified manufacturers, exporters and suppliers worldwide<br/>
+            Secure trade workflows and bulk sourcing made simple
+          </p>
+          <div className="flex items-center gap-4">
+            <Link aria-label="Twitter" href="#" className="text-white/60 hover:text-white">
               <IconTwitter />
             </Link>
-            <Link aria-label="LinkedIn" href="#" className="text-muted-foreground hover:text-foreground">
+            <Link aria-label="LinkedIn" href="#" className="text-white/60 hover:text-white">
               <IconLinkedIn />
             </Link>
-            <Link aria-label="YouTube" href="#" className="text-muted-foreground hover:text-foreground">
+            <Link aria-label="YouTube" href="#" className="text-white/60 hover:text-white">
               <IconYouTube />
             </Link>
           </div>
         </div>
 
-        <div>
-          <div className="text-sm font-semibold">Platform</div>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+        {/* Column 2 - Platform */}
+        <div className="text-white">
+          <div className="mb-4 text-sm font-semibold">
+            Platform
+          </div>
+          <ul className="space-y-2 text-sm text-white/60">
             <li>
-              <Link href="/" className="hover:text-foreground">
-                Home
+              <Link href="/about" className="hover:text-white">
+                How it Works
               </Link>
             </li>
             <li>
-              <Link href="/products" className="hover:text-foreground">
-                Products
+              <Link href="/pricing" className="hover:text-white">
+                Pricing
               </Link>
             </li>
             <li>
-              <Link href="/suppliers" className="hover:text-foreground">
-                Suppliers
+              <Link href="/features" className="hover:text-white">
+                Features
               </Link>
             </li>
             <li>
-              <Link href="/rfq" className="hover:text-foreground">
-                RFQ Board
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <div className="text-sm font-semibold">For Buyers</div>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li>
-              <Link href="/buyer/dashboard" className="hover:text-foreground">
-                Buyer Portal
-              </Link>
-            </li>
-            <li>
-              <Link href="/buyer/dashboard/rfqs/new" className="hover:text-foreground">
-                Post RFQ
-              </Link>
-            </li>
-            <li>
-              <Link href="/buyer/dashboard/saved" className="hover:text-foreground">
-                Saved Suppliers
+              <Link href="/security" className="hover:text-white">
+                Security
               </Link>
             </li>
           </ul>
         </div>
 
-        <div>
-          <div className="text-sm font-semibold">For Sellers</div>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+        {/* Column 3 - For Buyers / Sellers */}
+        <div className="grid grid-cols-2 gap-8">
+          <div>
+            <div className="mb-4 text-sm font-semibold text-white">
+              For Buyers
+            </div>
+            <ul className="space-y-2 text-sm text-white/60">
+              <li>
+                <Link href="/products" className="hover:text-white">
+                  Browse Products
+                </Link>
+              </li>
+              <li>
+                <Link href="/suppliers" className="hover:text-white">
+                  Find Suppliers
+                </Link>
+              </li>
+              <li>
+                <Link href="/rfq" className="hover:text-white">
+                  Post RFQ
+                </Link>
+              </li>
+              <li>
+                <Link href="/buyer-protection" className="hover:text-white">
+                  Buyer Protection
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div className="mb-4 text-sm font-semibold text-white">
+              For Sellers
+            </div>
+            <ul className="space-y-2 text-sm text-white/60">
+              <li>
+                <Link href="/seller/dashboard/products" className="hover:text-white">
+                  List Products
+                </Link>
+              </li>
+              <li>
+                <Link href="/seller/dashboard" className="hover:text-white">
+                  Seller Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link href="/seller/verification" className="hover:text-white">
+                  Verification
+                </Link>
+              </li>
+              <li>
+                <Link href="/seller/plans" className="hover:text-white">
+                  Plans
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Column 4 - Support */}
+        <div className="text-white">
+          <div className="mb-4 text-sm font-semibold">
+            Support
+          </div>
+          <ul className="space-y-2 text-sm text-white/60">
             <li>
-              <Link href="/seller/dashboard" className="hover:text-foreground">
-                Seller Portal
+              <Link href="/help" className="hover:text-white">
+                Help Center
               </Link>
             </li>
             <li>
-              <Link href="/seller/dashboard/products" className="hover:text-foreground">
-                Products
+              <Link href="/contact" className="hover:text-white">
+                Contact Us
               </Link>
             </li>
             <li>
-              <Link href="/seller/dashboard/company" className="hover:text-foreground">
-                Company Profile
+              <Link href="/terms" className="hover:text-white">
+                Terms
+              </Link>
+            </li>
+            <li>
+              <Link href="/privacy" className="hover:text-white">
+                Privacy
               </Link>
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="border-t border-border">
-        <div className="mx-auto flex max-w-[1280px] flex-col gap-2 px-4 py-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <div>© 2026 TradeHub · Privacy · Terms · support@tradehub.com</div>
-          <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-foreground">
-              Privacy
-            </Link>
-            <Link href="#" className="hover:text-foreground">
-              Terms
-            </Link>
-            <a className="hover:text-foreground" href="mailto:support@tradehub.com">
+      {/* Bottom bar */}
+      <div className="border-t border-border/20">
+        <div className="mx-auto flex max-w-[1280px] flex-col gap-4 px-4 py-6 md:flex-row md:items-center md:justify-between text-sm">
+          <div className="text-white/60">
+            © 2026 TradeHub · All rights reserved
+          </div>
+          <div className="flex items-center gap-4 text-white/60 hover:text-white">
+            <a href="mailto:support@tradehub.com" className="hover:text-white">
               support@tradehub.com
             </a>
           </div>
@@ -138,4 +192,3 @@ export function Footer() {
     </footer>
   );
 }
-

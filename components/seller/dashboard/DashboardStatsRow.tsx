@@ -1,36 +1,40 @@
-import { Package, FileText, MessageSquare, Eye } from "lucide-react";
+import { FileText, MessageSquare, Users, Send } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { DashboardStats } from "@/types/seller/dashboard.types";
 
 interface DashboardStatsRowProps {
-  stats: DashboardStats;
+  stats: {
+    myRFQs: number;
+    responsesReceived: number;
+    savedSuppliers: number;
+    messages: number;
+  };
 }
 
 export function DashboardStatsRow({ stats }: DashboardStatsRowProps) {
   const statItems = [
     {
-      title: "Total Products",
-      value: stats.totalProducts,
-      icon: Package,
-      description: `${stats.activeProducts} active`,
-    },
-    {
-      title: "RFQ Leads",
-      value: stats.rfqLeads,
+      title: "My RFQs",
+      value: stats.myRFQs,
       icon: FileText,
-      description: "Available to respond",
+      description: "Active RFQ leads",
     },
     {
-      title: "Unread Messages",
-      value: stats.unreadMessages,
+      title: "Responses Received",
+      value: stats.responsesReceived,
+      icon: Send,
+      description: "Buyer replies received",
+    },
+    {
+      title: "Saved Suppliers",
+      value: stats.savedSuppliers,
+      icon: Users,
+      description: "On your watchlist",
+    },
+    {
+      title: "Messages",
+      value: stats.messages,
       icon: MessageSquare,
-      description: "Need attention",
-    },
-    {
-      title: "Profile Views",
-      value: stats.profileViews,
-      icon: Eye,
-      description: "Last 30 days",
+      description: "Inbox conversations",
     },
   ];
 

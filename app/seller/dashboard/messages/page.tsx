@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
@@ -9,6 +11,6 @@ export default async function SellerMessagesPage() {
   if (!session?.user?.id) redirect("/login");
 
   const conversations = await getMyConversations();
-  return <MessagesClient meId={session.user.id} conversations={conversations as any} />;
+  return <MessagesClient meId={session.user.id} conversations={conversations as any} basePath="/seller/dashboard/messages" />;
 }
 

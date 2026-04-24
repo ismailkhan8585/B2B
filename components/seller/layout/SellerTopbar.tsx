@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -10,8 +10,6 @@ import {
   LogOut,
   Menu,
   AlertCircle,
-  CheckCircle,
-  XCircle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -40,12 +38,10 @@ interface SellerTopbarProps {
   onNotificationRead: (notificationId: string) => void;
 }
 
-const notificationIcons = {
+const notificationIcons: Record<string, typeof AlertCircle> = {
   rfq_response: AlertCircle,
   rfq_new: AlertCircle,
   message: User,
-  verification_approved: CheckCircle,
-  verification_rejected: XCircle,
   system: Bell,
 };
 
@@ -59,8 +55,6 @@ export function SellerTopbar({
   const router = useRouter();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  const unreadNotifications = notifications.filter(n => !n.isRead);
-
   const handleNotificationClick = (notification: SellerNotification) => {
     if (!notification.isRead) {
       onNotificationRead(notification.id);
@@ -72,7 +66,7 @@ export function SellerTopbar({
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 py-3 lg:px-6 lg:pl-72">
+    <header className="bg-white border-b border-gray-200 px-4 py-3 lg:px-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button
@@ -84,36 +78,10 @@ export function SellerTopbar({
             <Menu className="h-5 w-5" />
           </Button>
 
-          {/* Verification Status Banner */}
-          {stats.companyStatus !== 'VERIFIED' && (
-            <div className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm ${
-              stats.companyStatus === 'REJECTED'
-                ? 'bg-red-50 border border-red-200 text-red-800'
-                : 'bg-amber-50 border border-amber-200 text-amber-800'
-            }`}>
-              <AlertCircle className="h-4 w-4" />
-              <span>
-                {stats.companyStatus === 'REJECTED'
-                  ? `Verification rejected: ${stats.verificationMessage || 'Please resubmit your documents'}`
-                  : stats.companyStatus === 'PENDING'
-                  ? 'Your verification is under review. We\'ll notify you within 2-3 business days.'
-                  : 'Complete your profile to unlock all seller features.'
-                }
-              </span>
-              <Button
-                variant="link"
-                size="sm"
-                className={`p-0 h-auto font-medium ${
-                  stats.companyStatus === 'REJECTED'
-                    ? 'text-red-700 hover:text-red-800'
-                    : 'text-amber-700 hover:text-amber-800'
-                }`}
-                onClick={() => router.push('/seller/profile')}
-              >
-                {stats.companyStatus === 'REJECTED' ? 'Resubmit' : 'Complete Now'}
-              </Button>
-            </div>
-          )}
+          {/* Page title area */}
+          <div className="hidden md:block">
+            {/* Future: breadcrumb or page title */}
+          </div>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -151,7 +119,7 @@ export function SellerTopbar({
                 ) : (
                   <div className="divide-y">
                     {notifications.slice(0, 5).map((notification) => {
-                      const Icon = notificationIcons[notification.type];
+                      const Icon = notificationIcons[notification.type] || Bell;
                       return (
                         <div
                           key={notification.id}

@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
-import { resend, emailFrom } from "@/lib/email";
+import { resend, emailFrom, transporter } from "@/lib/email";
 
 const RegisterSchema = z.object({
   role: z.enum(["BUYER", "SELLER"]),
@@ -55,24 +55,36 @@ export async function registerUser(input: unknown) {
       data: { identifier: data.email, token: otp, expires },
     });
 
-    if (!process.env.RESEND_API_KEY) {
-      return { success: false as const, error: "RESEND_API_KEY is missing (cannot send OTP)." };
+    const htmlContent = `
+      <div style="font-family: ui-sans-serif, system-ui; line-height: 1.6;">
+        <p>Your verification code is:</p>
+        <p style="font-size: 24px; font-weight: 700; letter-spacing: 2px;">${otp}</p>
+        <p>This code expires in 10 minutes.</p>
+      </div>
+    `;
+
+    if (resend) {
+      const { error } = await resend.emails.send({
+        from: emailFrom,
+        to: data.email,
+        subject: "Verify your email",
+        html: htmlContent,
+      });
+      if (error) return { success: false as const, error: "Failed to send verification email via Resend." };
+    } else if (transporter) {
+      try {
+        await transporter.sendMail({
+          from: emailFrom,
+          to: data.email,
+          subject: "Verify your email",
+          html: htmlContent,
+        });
+      } catch (err) {
+        return { success: false as const, error: "Failed to send verification email via Gmail." };
+      }
+    } else {
+      console.log(`\n\n=== DEVELOPMENT OTP ===\nEmail: ${data.email}\nOTP: ${otp}\n=======================\n\n`);
     }
-
-    const { error } = await resend.emails.send({
-      from: emailFrom,
-      to: data.email,
-      subject: "Verify your email",
-      html: `
-        <div style="font-family: ui-sans-serif, system-ui; line-height: 1.6;">
-          <p>Your verification code is:</p>
-          <p style="font-size: 24px; font-weight: 700; letter-spacing: 2px;">${otp}</p>
-          <p>This code expires in 10 minutes.</p>
-        </div>
-      `,
-    });
-
-    if (error) return { success: false as const, error: "Failed to send verification email." };
 
     return { success: true as const, data: { email: data.email } };
   } catch (err) {

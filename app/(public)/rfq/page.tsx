@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+export const runtime = "nodejs";
+
 import { getPublicRFQs } from "@/actions/rfq.actions";
 import { Pagination } from "@/components/shared/Pagination";
 import { Badge } from "@/components/shared/Badge";

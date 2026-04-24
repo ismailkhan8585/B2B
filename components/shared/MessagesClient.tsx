@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -28,10 +28,13 @@ type MessageItem = {
 export function MessagesClient({
   meId,
   conversations,
+  basePath,
 }: {
   meId: string;
   conversations: ConversationListItem[];
+  basePath: string;
 }) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const sp = useSearchParams();
   const selected = sp.get("c") ?? conversations[0]?.id ?? null;
@@ -57,6 +60,10 @@ export function MessagesClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const selectedMeta = useMemo(() => conversations.find((c) => c.id === selected) ?? null, [conversations, selected]);
 
   return (
@@ -72,7 +79,7 @@ export function MessagesClient({
                 key={c.id}
                 type="button"
                 onClick={() => {
-                  router.push(`/buyer/dashboard/messages?c=${encodeURIComponent(c.id)}`);
+                  router.push(`${basePath}?c=${encodeURIComponent(c.id)}`);
                   router.refresh();
                 }}
                 className={cn(
@@ -117,6 +124,7 @@ export function MessagesClient({
           ) : (
             <div className="grid h-full place-items-center text-sm text-muted-foreground">Select a conversation to view messages.</div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
         <form

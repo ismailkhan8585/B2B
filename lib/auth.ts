@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
 import { emailFrom } from "@/lib/email";
+import { authConfig } from "@/lib/auth.config";
 
 type AppRole = "BUYER" | "SELLER" | "ADMIN" | "SUPER_ADMIN";
 type AppUserStatus = "ACTIVE" | "SUSPENDED" | "PENDING_VERIFICATION" | "BANNED";
@@ -15,13 +16,8 @@ function isActiveUser(status: AppUserStatus) {
 }
 
 export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-    verifyRequest: "/verify",
-    newUser: "/register",
-  },
   providers: (() => {
     const providers = [
       Credentials({
@@ -69,11 +65,10 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
     return providers;
   })(),
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
-      // On initial sign in, merge in role/status from `user` (Credentials)
-      if (user) {
-        token.role = (user as any).role ?? token.role;
-        token.status = (user as any).status ?? token.status;
+      if (authConfig.callbacks?.jwt) {
+        token = await authConfig.callbacks.jwt({ token, user, account: null as any, profile: undefined, isNewUser: undefined, trigger: "signIn", session: undefined } as any) as any;
       }
 
       if (token?.sub) {
@@ -90,13 +85,5 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
 
       return token;
     },
-    async session({ session, token }) {
-      if (token?.sub) session.user.id = token.sub;
-      session.user.role = (token as any).role as AppRole | undefined;
-      session.user.status = (token as any).status as AppUserStatus | undefined;
-      session.user.companyId = ((token as any).companyId as string | null | undefined) ?? null;
-      return session;
-    },
   },
 });
-

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { auth } from "@/lib/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
 
-export const runtime = "nodejs";
+const { auth } = NextAuth(authConfig);
 
 function dashboardForRole(role?: string | null) {
   switch (role) {
